@@ -2,9 +2,11 @@ pipeline {
     agent any
     
     environment {
-        DOCKER_HUB_REGISTRY = "your-dockerhub-username/smart-agri-portal"
-        APP_VERSION         = "1.0.${BUILD_NUMBER}"
-    }
+    // Change this string to your real Docker Hub account username
+    DOCKER_HUB_REGISTRY = "majorazor/smart-agri-portal"
+    APP_VERSION         = "1.0.${BUILD_NUMBER}"
+}
+
     
     stages {
         stage('Fetch Source Data') {
