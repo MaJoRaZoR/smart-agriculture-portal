@@ -1,70 +1,72 @@
 pipeline {
     agent any
     
-    parameters {
-        choice(name: 'DEPLOY_ENV', choices: ['Staging', 'Production'], description: 'Target Kubernetes Environment Clustered Environment')
-        booleanParam(name: 'RUN_INTEGRATION_TESTS', defaultValue: true, description: 'Toggle Execution of Advanced Sensor Simulation Validation Check')
-    }
-
     environment {
-        DOCKER_HUB_USER = 'YOUR_DOCKER_HUB_USERNAME'
-        IMAGE_NAME      = 'smart-irrigation-portal'
-        IMAGE_TAG       = "v${BUILD_NUMBER}"
-        REGISTRY_CRED   = 'docker-hub-credentials-id'
+        DOCKER_HUB_REGISTRY = "your-dockerhub-username/smart-agri-portal"
+        APP_VERSION         = "1.0.${BUILD_NUMBER}"
     }
-
+    
     stages {
-        stage('Initialize & Verify') {
+        stage('Fetch Source Data') {
+            steps {
+                echo 'Checking out Agricultural Code Base Repository...'
+                checkout scm
+            }
+        }
+        
+        stage('Parallel Analytics Verification') {
             parallel {
-                stage('Workspace Preparation') {
+                stage('Lint HTML Web Layout') {
                     steps {
-                        echo "Cleaning current workspace environment..."
-                        cleanWs()
+                        echo 'Validating index.html structures...'
                     }
                 }
-                stage('Code Validation') {
+                stage('Evaluate Optimization Engine') {
                     steps {
-                        echo "Verifying local application resource syntax structures..."
-                        checkout scm
-                        sh 'test -f index.html && test -f Dockerfile'
+                        echo 'Testing automated threshold math metrics...'
                     }
                 }
             }
         }
-
-        stage('Build Container Image') {
+        
+        stage('Build Engine Image') {
             steps {
-                echo "Assembling Local Component Build tagged as: ${IMAGE_TAG}"
-                sh "docker build -t ${DOCKER_HUB_USER}/${IMAGE_NAME}:${IMAGE_TAG} ."
-                sh "docker build -t ${DOCKER_HUB_USER}/${IMAGE_NAME}:latest ."
-            }
-        }
-
-        stage('Mock Simulation Validation') {
-            when {
-                expression { return params.RUN_INTEGRATION_TESTS == true }
-            }
-            steps {
-                echo "Running conditional test sweeps inside targeted target layer: ${params.DEPLOY_ENV}"
-                sh 'echo "Simulating API boundary parsing validation... Status: Passed"'
-            }
-        }
-
-        stage('Publish Image to Registry') {
-            steps {
-                withCredentials([usernamePassword(credentialsId: "${REGISTRY_CRED}", usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                    sh "echo \$DOCKER_PASS | docker login -u \$DOCKER_USER --password-stdin"
-                    sh "docker push ${DOCKER_HUB_USER}/${IMAGE_NAME}:${IMAGE_TAG}"
-                    sh "docker push ${DOCKER_HUB_USER}/${IMAGE_NAME}:latest"
+                script {
+                    echo "Building Docker container image version: ${APP_VERSION}"
+                    // Converted from sh to bat
+                    bat "docker build -t %DOCKER_HUB_REGISTRY%:%APP_VERSION% ."
+                    bat "docker tag %DOCKER_HUB_REGISTRY%:%APP_VERSION% %DOCKER_HUB_REGISTRY%:latest"
                 }
             }
         }
-    }
 
-    post {
-        always {
-            echo "Capturing configuration runtime layouts..."
-            archiveArtifacts artifacts: 'index.html, deployment.yaml', fingerprint: true
+        stage('Archive Test Configuration') {
+            steps {
+                echo "Archiving operational assets for traceability..."
+                archiveArtifacts artifacts: 'index.html', fingerprint: true
+            }
+        }
+
+        stage('Push Image Registry') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'USER', passwordVariable: 'PASS')]) {
+                    // Converted to Windows Batch execution pattern
+                    bat "echo %PASS% | docker login -u %USER% --password-stdin"
+                    bat "docker push %DOCKER_HUB_REGISTRY%:%APP_VERSION%"
+                    bat "docker push %DOCKER_HUB_REGISTRY%:latest"
+                }
+            }
+        }
+
+        stage('Deploy to Kubernetes Cluster') {
+            steps {
+                withKubeConfig([credentialsId: 'kubernetes-cluster-credentials', serverUrl: 'https://docker.internal']) {
+                    // Replaced Linux 'sed' with a native PowerShell string replacement pattern
+                    bat "powershell -Command \"(Get-Content deployment.yaml) -replace 'IMAGE_VERSION_PLACEHOLDER', '%APP_VERSION%' | Set-Content deployment.yaml\""
+                    bat "kubectl apply -f deployment.yaml"
+                    bat "kubectl rollout status deployment/agri-portal-deployment"
+                }
+            }
         }
     }
 }
