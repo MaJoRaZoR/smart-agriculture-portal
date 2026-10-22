@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
       - name: web-portal-instance
-        image: YOUR_DOCKER_HUB_USERNAME/smart-irrigation-portal:latest
+        image: Majorazor/smart-irrigation-portal:latest
         imagePullPolicy: Always
         ports:
         - containerPort: 80
