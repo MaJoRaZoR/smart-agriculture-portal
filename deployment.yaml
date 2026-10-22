@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
       - name: web-portal-instance
-        image: Majorazor/smart-irrigation-portal:latest
+        image: sriram1108/smart-agri-portal:IMAGE_VERSION_PLACEHOLDER
         imagePullPolicy: Always
         ports:
         - containerPort: 80
