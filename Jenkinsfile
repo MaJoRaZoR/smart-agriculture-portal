@@ -53,14 +53,17 @@ pipeline {
 
         stage('Push Image Registry') {
             steps {
-                // Ensure your credentialsId 'docker-hub-credentials' matches what you configured in Jenkins Settings
-                withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'USER', passwordVariable: 'PASS')]) {
-                    bat "echo %PASS% | docker login -u %USER% --password-stdin"
-                    bat "docker push ${env.DOCKER_HUB_REGISTRY}:${env.APP_VERSION}"
-                    bat "docker push ${env.DOCKER_HUB_REGISTRY}:latest"
+                script {
+                    echo "Logging into Docker Hub and pushing image..."
+                    // Natively handles logins securely without relying on 'bat echo %PASS%'
+                    docker.withRegistry('https://docker.io', 'docker-hub-credentials') {
+                        bat "docker push ${env.DOCKER_HUB_REGISTRY}:${env.APP_VERSION}"
+                        bat "docker push ${env.DOCKER_HUB_REGISTRY}:latest"
+                    }
                 }
             }
         }
+
 
         stage('Deploy to Kubernetes Cluster') {
             steps {
