@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Agriculture & Irrigation Portal</title>
+    <link href="https://jsdelivr.net" rel="stylesheet">
+    <style>
+        .alert-pulse { animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
+        .card-metric { border-radius: 12px; border-left: 5px solid; }
+    </style>
+</head>
+<body class="bg-light">
+    <nav class="navbar navbar-dark bg-success shadow-sm mb-4">
+        <div class="container-fluid">
+            <span class="navbar-brand mb-0 h1">🚜 AgriResearch Resource Optimization Portal</span>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Analytics Dashboard Summary Panel -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-4">
+                <div class="card p-3 shadow-sm card-metric border-left bg-white border-primary">
+                    <h6 class="text-muted text-uppercase small">Total Water Consumption</h6>
+                    <h3 class="fw-bold text-primary" id="totalWater">27,900 Liters</h3>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card p-3 shadow-sm card-metric bg-white border-danger">
+                    <h6 class="text-muted text-uppercase small">Lowest Moisture Field</h6>
+                    <h3 class="fw-bold text-danger" id="lowestMoistureField">FLD-303 (22%)</h3>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card p-3 shadow-sm card-metric bg-white border-success">
+                    <h6 class="text-muted text-uppercase small">Water Conservation Target</h6>
+                    <h3 class="fw-bold text-success">15% Reduction Met</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Main Grid Display Panel -->
+            <div class="col-lg-8">
+                <div class="card p-4 shadow-sm mb-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h4 class="mb-0">Field Monitoring Console</h4>
+                        <select class="form-select w-auto" id="cropFilter" onchange="filterFields()">
+                            <option value="All">All Crops</option>
+                            <option value="Wheat">Wheat</option>
+                            <option value="Maize">Maize</option>
+                            <option value="Rice">Rice</option>
+                            <option value="Soybean">Soybean</option>
+                            <option value="Cotton">Cotton</option>
+                        </select>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table class="table align-middle table-hover">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Field ID</th>
+                                    <th>Crop Type</th>
+                                    <th>Soil Moisture</th>
+                                    <th>Water Consumption</th>
+                                    <th>Temp</th>
+                                    <th>Status / Next Run</th>
+                                </tr>
+                            </thead>
+                            <tbody id="fieldTableBody">
+                                <tr data-crop="Wheat">
+                                    <td><strong>FLD-101</strong></td>
+                                    <td><span class="badge bg-secondary">Wheat</span></td>
+                                    <td><div class="progress" style="height: 20px;"><div class="progress-bar bg-success" style="width: 45%">45%</div></div></td>
+                                    <td>5,200 L</td>
+                                    <td>28°C</td>
+                                    <td><span class="badge bg-secondary">Scheduled: 18:00</span> <span class="badge bg-info text-dark">Excellent</span></td>
+                                </tr>
+                                <tr data-crop="Maize">
+                                    <td><strong>FLD-202</strong></td>
+                                    <td><span class="badge bg-secondary">Maize</span></td>
+                                    <td><div class="progress" style="height: 20px;"><div class="progress-bar bg-success" style="width: 38%">38%</div></div></td>
+                                    <td>4,800 L</td>
+                                    <td>31°C</td>
+                                    <td><span class="badge bg-secondary">Scheduled: 21:30</span> <span class="badge bg-info text-dark">Good</span></td>
+                                </tr>
+                                <tr data-crop="Rice" class="table-danger">
+                                    <td><strong>FLD-303</strong></td>
+                                    <td><span class="badge bg-secondary">Rice</span></td>
+                                    <td><div class="progress" style="height: 20px;"><div class="progress-bar bg-danger alert-pulse" style="width: 22%">22%</div></div></td>
+                                    <td>8,500 L</td>
+                                    <td>34°C</td>
+                                    <td><span class="badge bg-danger alert-pulse">⚠️ CRITICAL CRITERIA</span> <span class="badge bg-warning text-dark">Stressed</span></td>
+                                </tr>
+                                <tr data-crop="Soybean">
+                                    <td><strong>FLD-404</strong></td>
+                                    <td><span class="badge bg-secondary">Soybean</span></td>
+                                    <td><div class="progress" style="height: 20px;"><div class="progress-bar bg-success" style="width: 52%">52%</div></div></td>
+                                    <td>3,900 L</td>
+                                    <td>26°C</td>
+                                    <td><span class="badge bg-secondary">Scheduled: Tomorrow</span> <span class="badge bg-info text-dark">Excellent</span></td>
+                                </tr>
+                                <tr data-crop="Cotton" class="table-danger">
+                                    <td><strong>FLD-505</strong></td>
+                                    <td><span class="badge bg-secondary">Cotton</span></td>
+                                    <td><div class="progress" style="height: 20px;"><div class="progress-bar bg-danger alert-pulse" style="width: 28%">28%</div></div></td>
+                                    <td>5,500 L</td>
+                                    <td>33°C</td>
+                                    <td><span class="badge bg-danger alert-pulse">⚠️ CRITICAL CRITERIA</span> <span class="badge bg-warning text-dark">Stressed</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Priority Recommendations Action Panel -->
+            <div class="col-lg-4">
+                <div class="card p-4 shadow-sm bg-dark text-white">
+                    <h5>🚨 Prioritized Dispatch List</h5>
+                    <p class="small text-muted">Fields ordered by critical water dynamic requirement:</p>
+                    <ol class="list-group list-group-numbered text-dark" id="priorityQueue">
+                        <li class="list-group-item d-flex justify-content-between align-items-start mb-2 rounded">
+                            <div class="ms-2 me-auto">
+                                <div class="fw-bold">FLD-303 (Rice)</div>
+                                Action: Critical moisture shortage. Trigger Immediate Flow.
+                            </div>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-start mb-2 rounded">
+                            <div class="ms-2 me-auto">
+                                <div class="fw-bold">FLD-505 (Cotton)</div>
+                                Action: Moisture below 30%. Stage 2 Dispatch Required.
+                            </div>
+                        </li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function filterFields() {
+            const selectedCrop = document.getElementById('cropFilter').value;
+            const rows = document.querySelectorAll('#fieldTableBody tr');
+            rows.forEach(row => {
+                if (selectedCrop === 'All' || row.getAttribute('data-crop') === selectedCrop) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+    </script>
+</body>
+</html>
