@@ -6,7 +6,7 @@ pipeline {
         DOCKER_HUB_REGISTRY = "majorazor/smart-agri-portal"
         APP_VERSION         = "1.0.${BUILD_NUMBER}"
         // ADD YOUR GITHUB REPOSITORY URL HERE
-        GIT_REPO_URL        = "https://github.com"
+        GIT_REPO_URL        = "https://github.com/MaJoRaZoR/smart-agriculture-portal/"
     }
 
     stages {
