@@ -2,9 +2,10 @@ pipeline {
     agent any
     
     environment {
-        DOCKER_HUB_REGISTRY = "majorazor/smart-agri-portal"
+        // Synchronized namespace matching your active login session
+        DOCKER_HUB_REGISTRY = "sriram1108/smart-agri-portal"
         APP_VERSION         = "1.0.${BUILD_NUMBER}"
-        GIT_REPO_URL        = "https://github.com/MaJoRaZoR/smart-agriculture-portal/"
+        GIT_REPO_URL        = "https://github.com"
     }
 
     stages {
@@ -50,8 +51,7 @@ pipeline {
         stage('Push Image Registry') {
             steps {
                 script {
-                    echo "Logging into Docker Hub natively and pushing image layers..."
-                    // Bypasses the echo %PASS% pipe completely using the native Jenkins Docker plugin wrapper
+                    echo "Logging into Docker Hub and pushing image..."
                     docker.withRegistry('https://docker.io', 'docker-hub-credentials') {
                         bat "docker push ${env.DOCKER_HUB_REGISTRY}:${env.APP_VERSION}"
                         bat "docker push ${env.DOCKER_HUB_REGISTRY}:latest"
@@ -63,6 +63,7 @@ pipeline {
         stage('Deploy to Kubernetes Cluster') {
             steps {
                 withKubeConfig([credentialsId: 'kubernetes-cluster-credentials', serverUrl: 'https://docker.internal']) {
+                    echo "Dynamically updating deployment image tag version..."
                     bat "powershell -Command \"(Get-Content deployment.yaml) -replace 'IMAGE_VERSION_PLACEHOLDER', '${env.APP_VERSION}' | Set-Content deployment.yaml\""
                     bat "kubectl apply -f deployment.yaml"
                     bat "kubectl rollout status deployment/agri-portal-deployment"
